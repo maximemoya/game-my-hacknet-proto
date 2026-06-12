@@ -1,6 +1,13 @@
 import type { Command } from "../../types";
+import { commandHelp } from "../commandHelp";
 
 export const help: Command = async (_args, context) => {
-    context.ui.writeLine("Commandes: help, ls, cat, pwd, cd, echo, scan, connect, disconnect, rm, changeAuth, run, mem, clear, whoami, who, save, load, reset");
-    context.ui.writeLine("Ex: ls, cat readme.txt, cd /home, scan, connect <1.2.0.7> <name> <?password>, changeAuth <admin | user | guest> <?password>, run tracer, who (sessions sur la machine), save/load fs (IndexedDB)");
+    const names = Object.keys(commandHelp);
+    const nameWidth = Math.max(...names.map(n => n.length)) + 2;
+    context.ui.writeLine("Commandes :");
+    for (const name of names) {
+        context.ui.writeClickableLine(`${name.padEnd(nameWidth)}${commandHelp[name].summary}`, `${name} `);
+    }
+    context.ui.writeLine("Tape '<commande> help' pour le detail d'une commande.");
+    context.ui.writeLine("Tape 'prog-list' pour la liste des programmes.");
 };

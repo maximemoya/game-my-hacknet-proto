@@ -7,6 +7,8 @@ import { WORLD_SEED } from "./world/worldData";
 import { generateNpcs } from "./world/sim/npcGen";
 import { Simulation } from "./world/sim/simulation";
 import { commands } from "./commands/commands";
+import { getHelpFor } from "./commands/commandHelp";
+import { programRegistry } from "./programs/programRegistry";
 import { startMatrixRain } from "./matrixRain";
 import { startHud, pushNetFeedLine } from "./hud";
 import { setupAudio, playKeyClick, playCommandSfx, playError } from "./audio";
@@ -264,7 +266,7 @@ class Terminal {
         const lastPart = parts[parts.length - 1];
 
         const fileAndFolderCommands = ["cat", "cd", "rm"];
-        const programs = ["ping", "tracer"];
+        const programs = Object.keys(programRegistry);
 
         if (parts.length === 1) {
           const commandKeys = Object.keys(commands);
@@ -324,6 +326,12 @@ class Terminal {
     }
     playCommandSfx(name);
     this.ui.setCommandClass(name);
+    const helpLines = getHelpFor(name, args);
+    if (helpLines) {
+      for (const line of helpLines) this.ui.writeLine(line);
+      this.ui.setCommandClass("");
+      return;
+    }
     try {
       const context: CommandContext = {
         fs: this.fs,

@@ -157,7 +157,7 @@
     }
 
     .sidebar {
-      width: 230px;
+      width: clamp(280px, 26vw, 420px);
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -200,6 +200,13 @@
     .syslog div:last-child {
       color: var(--text);
       text-shadow: 0 0 4px rgba(25, 227, 255, 0.3);
+    }
+
+    #activePrograms div {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      overflow-wrap: anywhere;
     }
 
     #spark {
@@ -292,6 +299,8 @@
     .cmd-run { color: #ff6ec7; }
     .cmd-rm, .cmd-error { color: #ff5b5b; }
     .cmd-save, .cmd-load, .cmd-reset, .cmd-changeAuth { color: #ffc857; }
+    .bf-success { color: #4dff9d; }
+    .bf-fail { color: #ff5b5b; }
 
     .line.clickable {
       cursor: pointer;
@@ -439,6 +448,10 @@
         <div class="sideBox">
           <div class="sideTitle">NET FEED</div>
           <div class="syslog" id="netfeed"></div>
+        </div>
+        <div class="sideBox">
+          <div class="sideTitle">ACTIVE PROGRAMS</div>
+          <div class="syslog" id="activePrograms"></div>
         </div>
         <div class="sideBox grow">
           <div class="sideTitle">SYS LOG</div>

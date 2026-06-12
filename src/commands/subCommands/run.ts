@@ -1,18 +1,22 @@
 import type { Command } from "../../types";
+import { printProgramList, programRegistry } from "../../programs/programRegistry";
 
 export const run: Command = async (args, context) => {
   const tool = args[0] ?? "";
-  if (tool === "" || (tool !== "ping" && tool !== "tracer")) {
-    return context.ui.writeLine(`Error run commande inconnue`);
+  if (tool === "") {
+    context.ui.writeLine("Programmes disponibles :");
+    return printProgramList(context);
   }
-  const memCost = tool === "tracer" ? 256 : 128;
-  if (!context.memory.allocate(memCost)) {
-    return context.ui.writeLine(`run: mémoire insuffisante pour ${tool} (besoin ${memCost} Mo)`);
+  const def = programRegistry[tool];
+  if (!def) {
+    return context.ui.writeLine(`run: programme inconnu '${tool}'. Tape 'prog-list'.`);
   }
-  context.ui.writeLine(`Lancement de ${tool}... (consomme ${memCost} Mo)`);
-  context.ui.updateMemoryUI(context.memory.getMemory());
-  await context.delay(1500 + Math.random() * 2500);
-  context.ui.writeLine(`${tool}: terminé.`);
-  context.memory.free(memCost);
-  context.ui.updateMemoryUI(context.memory.getMemory());
+  if (args[1] === "help") {
+    for (const line of def.help) context.ui.writeLine(line);
+    return;
+  }
+  if (def.requiresArgs && args.length === 1) {
+    return context.ui.writeLine(def.usage);
+  }
+  return def.run(args.slice(1), context);
 };

@@ -5,6 +5,7 @@ import { ls } from "./subCommands/ls";
 import { pwd } from "./subCommands/pwd";
 import { cd } from "./subCommands/cd";
 import { cat } from "./subCommands/cat";
+import { grep } from "./subCommands/grep";
 import { echo } from "./subCommands/echo";
 import { whoami } from "./subCommands/whoami";
 import { who } from "./subCommands/who";
@@ -14,6 +15,7 @@ import { scan } from "./subCommands/scan";
 import { connect } from "./subCommands/connect";
 import { disconnect } from "./subCommands/disconnect";
 import { run } from "./subCommands/run";
+import { progList } from "./subCommands/progList";
 import { rm } from "./subCommands/rm";
 import { save } from "./subCommands/save";
 import { load } from "./subCommands/load";
@@ -26,6 +28,7 @@ export const commands: Record<string, Command> = {
   pwd,
   cd,
   cat,
+  grep,
   echo,
   whoami,
   who,
@@ -35,6 +38,7 @@ export const commands: Record<string, Command> = {
   connect,
   disconnect,
   run,
+  "prog-list": progList,
   rm,
   save,
   load,

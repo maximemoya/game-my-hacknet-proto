@@ -1,3 +1,5 @@
+import { backgroundPrograms } from "./programs/backgroundPrograms";
+
 const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const SYSLOG_POOL = [
@@ -36,6 +38,35 @@ export function startHud(): void {
   if (telemetry) startTelemetry(telemetry);
   if (syslog) startSyslog(syslog);
   if (spark) startSparkline(spark);
+  startActiveProgramsPanel();
+}
+
+function startActiveProgramsPanel(): void {
+  const el = document.getElementById("activePrograms");
+  if (!el) return;
+
+  const render = () => {
+    el.innerHTML = "";
+    const programs = backgroundPrograms.list();
+    if (programs.length === 0) {
+      const d = document.createElement("div");
+      d.textContent = "aucun programme actif";
+      el.appendChild(d);
+      return;
+    }
+    for (const p of programs) {
+      const remaining = Math.max(0, Math.ceil((p.endsAt - Date.now()) / 1000));
+      const mmss = `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`;
+      const d = document.createElement("div");
+      d.textContent = `${p.name}  ${p.targetLabel}  ${p.ram}Mo  ${mmss}`;
+      el.appendChild(d);
+    }
+  };
+
+  render();
+  backgroundPrograms.onChange(render);
+  // countdown is functional info, keep ticking even under reduced motion
+  setInterval(render, 1000);
 }
 
 function startRadar(canvas: HTMLCanvasElement): void {
