@@ -16,6 +16,7 @@ export interface I_DatabaseManager {
 
 export interface I_FileSystemManager {
   getOwnerComputer(): Computer;
+  getAllComputers(): Computer[];
   setOwnerComputer(newOwnerComputer: Computer): void;
   getCurrentComputer(): Computer;
   setCurrentComputer(newCurrentComputer: Computer): void;

@@ -1,7 +1,7 @@
 import { type Authority } from "./computer/authority/Authority";
-import { Computer } from "./computer/Computer";
-import MyFile from "./computer/elements/File";
-import { Folder } from "./computer/elements/Folder";
+import type { Computer } from "./computer/Computer";
+import type { Folder } from "./computer/elements/Folder";
+import { buildWorld } from "./world/worldGen";
 import { commands } from "./commands/commands";
 import { startMatrixRain } from "./matrixRain";
 import { startHud } from "./hud";
@@ -58,39 +58,18 @@ class FileSystemManager implements I_FileSystemManager {
   private ownerComputer: Computer;
   private currentComputer: Computer;
   private currentFolder: Folder;
+  private allComputers: Computer[];
 
   constructor() {
-    this.ownerComputer = new Computer("192.168.0.42", "wax", "wax")
-      .withPasswordAuthUser("user")
-      .withPasswordAuthAdmin("admin")
-      .withMainFolder(
-        new Folder("main").withFiles(
-          [
-            new MyFile("f1admin.txt", "le contenu du fichier admin", "admin"),
-            new MyFile("f1user.txt", "le contenu du fichier user", "user"),
-            new MyFile("f1guest.txt", "le contenu du fichier guest", "guest"),
-          ]
-        ).withChildrenFolder(
-          [
-            new Folder("intro").withFiles([new MyFile("readme.txt", "un nouveau contenu"), new MyFile("secret.txt", "code Bob => bob", "admin")]),
-            new Folder("folderAdmin", "admin"),
-            new Folder("folderUser", "user"),
-            new Folder("folderGuest", "guest"),
-          ]
-        )
-      )
-      .withComputersLinked([
-        new Computer("192.168.2.1", "Bob", "bob"),
-        new Computer("192.168.0.254", "Fry"),
-        new Computer("192.168.14.9", "Mey"),
-        new Computer("193.169.1.11", "Dan"),
-      ]);
-
+    const world = buildWorld();
+    this.ownerComputer = world.owner;
+    this.allComputers = world.all;
     this.currentComputer = this.ownerComputer;
     this.currentFolder = this.currentComputer.mainFolder;
   }
 
   getOwnerComputer = () => this.ownerComputer;
+  getAllComputers = () => this.allComputers;
   setOwnerComputer = (newOwnerComputer: Computer) => { this.ownerComputer = newOwnerComputer; };
   getCurrentComputer = () => this.currentComputer;
   setCurrentComputer = (newCurrentComputer: Computer) => { this.currentComputer = newCurrentComputer; this.currentFolder = newCurrentComputer.mainFolder; };
