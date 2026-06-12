@@ -4,6 +4,7 @@ import type { Folder } from "./computer/elements/Folder";
 
 // General Types
 export type MemoryState = { total: number; used: number };
+export type ScanEntry = { ip: string; name: string; passwordRequired: boolean };
 export type FileNode = { type: "file"; content: string } | { type: "dir"; children: Record<string, FileNode> };
 
 // Manager Interfaces
@@ -32,6 +33,8 @@ export interface I_MemoryManager {
 
 export interface I_UIManager {
   writeLine(text: string, cls?: string): void;
+  writeClickableLine(text: string, commandToFill: string, cls?: string): void;
+  setCommandClass(name: string): void;
   writePromptLine(text: string): void;
   clearOutput(): void;
   updateMemoryUI(memory: MemoryState): void;
@@ -41,6 +44,8 @@ export interface I_UIManager {
 
 export interface I_NetworkManager {
   isConnected: boolean;
+  scanResults: ScanEntry[];
+  scanSourceIp: string;
   isCurrentlyConnected(): boolean;
 }
 

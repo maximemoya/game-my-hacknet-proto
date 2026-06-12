@@ -1,10 +1,19 @@
 import type { Command } from "../../types";
 
 export const connect: Command = async (args, context) => {
-    const ip = args[0];
-    const name = args[1];
-    const password = args[2] ? args[2] : "";
-    if (!ip || !name) return context.ui.writeLine("Usage: connect <ip> <name> <?password>");
+    let ip = args[0];
+    let name = args[1];
+    let password = args[2] ? args[2] : "";
+    if (ip && /^\d+$/.test(ip) && !args[2]) {
+      const entry = context.network.scanResults[parseInt(ip, 10) - 1];
+      if (!entry) return context.ui.writeLine(`no scan result [${ip}], run 'scan' first`);
+      if (context.network.scanSourceIp !== context.fs.getCurrentComputer().addressIp)
+        return context.ui.writeLine("scan results are stale (scanned from another host), run 'scan' again");
+      ip = entry.ip;
+      name = entry.name;
+      password = args[1] ? args[1] : "";
+    }
+    if (!ip || !name) return context.ui.writeLine("Usage: connect <ip> <name> <?password> | connect <scanIndex> <?password>");
 
     context.ui.writeLine(`try to connect to ${args} ...`);
     await context.delay(500);

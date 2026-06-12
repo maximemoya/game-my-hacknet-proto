@@ -279,6 +279,32 @@
       text-shadow: 0 0 5px rgba(25, 227, 255, 0.35);
     }
 
+    [class*="cmd-"] {
+      text-shadow: 0 0 5px currentColor;
+    }
+
+    .cmd-help { color: #ffd166; }
+    .cmd-ls, .cmd-pwd, .cmd-cd { color: #6fb8ff; }
+    .cmd-cat, .cmd-echo { color: #e8f6ff; }
+    .cmd-whoami, .cmd-mem { color: #c77dff; }
+    .cmd-scan { color: #4dff9d; }
+    .cmd-connect, .cmd-disconnect { color: #ff9f5b; }
+    .cmd-run { color: #ff6ec7; }
+    .cmd-rm, .cmd-error { color: #ff5b5b; }
+    .cmd-save, .cmd-load, .cmd-reset, .cmd-changeAuth { color: #ffc857; }
+
+    .line.clickable {
+      cursor: pointer;
+      color: #4dff9d;
+      text-shadow: 0 0 6px rgba(77, 255, 157, 0.45);
+    }
+
+    .line.clickable:hover {
+      background: rgba(77, 255, 157, 0.1);
+      color: #8dffbe;
+      text-shadow: 0 0 9px rgba(77, 255, 157, 0.7);
+    }
+
     .prompt {
       color: var(--accent);
       text-shadow: 0 0 7px var(--glow);

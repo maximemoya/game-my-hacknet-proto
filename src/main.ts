@@ -6,7 +6,7 @@ import { commands } from "./commands/commands";
 import { startMatrixRain } from "./matrixRain";
 import { startHud } from "./hud";
 import { setupAudio, playKeyClick, playCommandSfx, playError } from "./audio";
-import type { I_DatabaseManager, I_FileSystemManager, I_MemoryManager, I_NetworkManager, I_UIManager, MemoryState, CommandContext } from "./types";
+import type { I_DatabaseManager, I_FileSystemManager, I_MemoryManager, I_NetworkManager, I_UIManager, MemoryState, CommandContext, ScanEntry } from "./types";
 
 const MEM_MAX_SIZE = 512;
 
@@ -122,6 +122,7 @@ class UIManager implements I_UIManager {
   private memUsedEl: HTMLSpanElement;
   private memTotEl: HTMLSpanElement;
   private connBadge: HTMLDivElement;
+  private cmdInput: HTMLInputElement;
 
   constructor() {
     this.output = document.getElementById("output") as HTMLDivElement;
@@ -129,12 +130,32 @@ class UIManager implements I_UIManager {
     this.memUsedEl = document.getElementById("memUsed") as HTMLSpanElement;
     this.memTotEl = document.getElementById("memTot") as HTMLSpanElement;
     this.connBadge = document.getElementById("connBadge") as HTMLDivElement;
+    this.cmdInput = document.getElementById("cmd") as HTMLInputElement;
   }
+
+  private currentCmdClass: string = "";
+
+  setCommandClass = (name: string) => {
+    this.currentCmdClass = name ? " cmd-" + name.replace(/[^\w-]/g, "") : "";
+  };
 
   writeLine = (text: string, cls?: string) => {
     const d = document.createElement("div");
-    d.className = "line" + (cls ? " " + cls : "");
+    d.className = "line" + this.currentCmdClass + (cls ? " " + cls : "");
     d.textContent = text;
+    this.output.appendChild(d);
+    this.output.scrollTop = this.output.scrollHeight;
+  };
+
+  writeClickableLine = (text: string, commandToFill: string, cls?: string) => {
+    const d = document.createElement("div");
+    d.className = "line clickable" + this.currentCmdClass + (cls ? " " + cls : "");
+    d.textContent = text;
+    d.addEventListener("click", () => {
+      this.cmdInput.value = commandToFill;
+      this.cmdInput.focus();
+      this.cmdInput.setSelectionRange(this.cmdInput.value.length, this.cmdInput.value.length);
+    });
     this.output.appendChild(d);
     this.output.scrollTop = this.output.scrollHeight;
   };
@@ -142,7 +163,9 @@ class UIManager implements I_UIManager {
   writePromptLine = (text: string) => {
     const d = document.createElement("div");
     d.className = "line";
-    d.innerHTML = `<span class="prompt">> </span>${this.escapeHtml(text)}`;
+    const name = text.split(/\s+/)[0];
+    const cmdCls = "cmd-" + name.replace(/[^\w-]/g, "");
+    d.innerHTML = `<span class="prompt">> </span><span class="${cmdCls}">${this.escapeHtml(name)}</span>${this.escapeHtml(text.slice(name.length))}`;
     this.output.appendChild(d);
     this.output.scrollTop = this.output.scrollHeight;
   };
@@ -173,6 +196,8 @@ class UIManager implements I_UIManager {
 
 class NetworkManager implements I_NetworkManager {
   public isConnected: boolean = false;
+  public scanResults: ScanEntry[] = [];
+  public scanSourceIp: string = "";
   isCurrentlyConnected = () => this.isConnected;
 }
 
@@ -279,6 +304,18 @@ class Terminal {
           } else if (suggestions.length > 1) {
             this.ui.writeLine(suggestions.join("  "));
           }
+        } else if (parts.length > 1 && commandName === "connect") {
+          const linked = this.fs.getCurrentComputer().computersLinked;
+          const suggestions = parts.length === 2
+            ? linked.map(c => c.addressIp).filter(s => s.startsWith(lastPart))
+            : linked.filter(c => c.addressIp === parts[1]).map(c => c.name).filter(s => s.startsWith(lastPart));
+
+          if (suggestions.length === 1) {
+            const completedValue = trimmedValue.substring(0, trimmedValue.length - lastPart.length) + suggestions[0];
+            this.cmdInput.value = completedValue + " ";
+          } else if (suggestions.length > 1) {
+            this.ui.writeLine(suggestions.join("  "));
+          }
         }
       }
     });
@@ -288,10 +325,13 @@ class Terminal {
     const cmd = commands[name];
     if (!cmd) {
       playError();
+      this.ui.setCommandClass("error");
       this.ui.writeLine(`${name}: commande inconnue. Tape 'help'.`);
+      this.ui.setCommandClass("");
       return;
     }
     playCommandSfx(name);
+    this.ui.setCommandClass(name);
     try {
       const context: CommandContext = {
         fs: this.fs,
@@ -306,7 +346,10 @@ class Terminal {
     } catch (err: any) {
       console.error(err);
       playError();
+      this.ui.setCommandClass("error");
       this.ui.writeLine(`Erreur: ${err?.message ?? String(err)}`);
+    } finally {
+      this.ui.setCommandClass("");
     }
   }
 
