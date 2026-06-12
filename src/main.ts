@@ -12,6 +12,8 @@ import { programRegistry } from "./programs/programRegistry";
 import { startMatrixRain } from "./matrixRain";
 import { startHud, pushNetFeedLine } from "./hud";
 import { setupAudio, playKeyClick, playCommandSfx, playError } from "./audio";
+import { DiscoveredNetwork } from "./discoveredNetwork";
+import { ScanView } from "./scanView";
 import type { I_DatabaseManager, I_FileSystemManager, I_MemoryManager, I_NetworkManager, I_UIManager, MemoryState, CommandContext, ScanEntry } from "./types";
 
 const MEM_MAX_SIZE = 512;
@@ -182,6 +184,7 @@ class NetworkManager implements I_NetworkManager {
   public isConnected: boolean = false;
   public scanResults: ScanEntry[] = [];
   public scanSourceIp: string = "";
+  public discovered = new DiscoveredNetwork();
   isCurrentlyConnected = () => this.isConnected;
 }
 
@@ -194,6 +197,7 @@ class Terminal {
   private sim: Simulation;
   private form: HTMLFormElement;
   private cmdInput: HTMLInputElement;
+  private scanView: ScanView;
   private history: string[] = [];
   private historyIndex: number = 0;
 
@@ -216,6 +220,32 @@ class Terminal {
     this.form = document.getElementById("form") as HTMLFormElement;
     this.cmdInput = document.getElementById("cmd") as HTMLInputElement;
 
+    this.scanView = new ScanView({
+      container: document.getElementById("scanView") as HTMLElement,
+      discovered: this.network.discovered,
+      getCurrentIp: () => this.fs.getCurrentComputer().addressIp,
+      getOwnerIp: () => this.fs.getOwnerComputer().addressIp,
+      onNodeAction: (node) => {
+        if (node.ip === this.fs.getCurrentComputer().addressIp) return;
+        if (node.passwordRequired && !node.unlocked) {
+          this.setActiveTab("terminal");
+          this.cmdInput.value = `connect ${node.ip} ${node.name} `;
+          this.cmdInput.focus();
+          this.cmdInput.setSelectionRange(this.cmdInput.value.length, this.cmdInput.value.length);
+        } else {
+          void this.submitCommand(`connect ${node.ip} ${node.name}`).then(() => {
+            if (this.fs.getCurrentComputer().addressIp === node.ip) {
+              this.scanView.show();
+            } else {
+              this.setActiveTab("terminal");
+            }
+          });
+        }
+      },
+      onScan: () => this.submitCommand("scan"),
+    });
+    this.setupTabs();
+
     this.setupEventListeners();
     startMatrixRain(document.getElementById("rain") as HTMLCanvasElement);
     startHud();
@@ -223,21 +253,50 @@ class Terminal {
     this.init();
   }
 
+  private setupTabs(): void {
+    const tabTerminal = document.getElementById("tabTerminal") as HTMLButtonElement;
+    const tabScanView = document.getElementById("tabScanView") as HTMLButtonElement;
+    tabTerminal.addEventListener("click", () => this.setActiveTab("terminal"));
+    tabScanView.addEventListener("click", () => this.setActiveTab("scan"));
+  }
+
+  private setActiveTab(which: "terminal" | "scan"): void {
+    const tabTerminal = document.getElementById("tabTerminal") as HTMLButtonElement;
+    const tabScanView = document.getElementById("tabScanView") as HTMLButtonElement;
+    const terminalView = document.getElementById("terminalView") as HTMLDivElement;
+    const scanViewEl = document.getElementById("scanView") as HTMLDivElement;
+    const isTerminal = which === "terminal";
+    tabTerminal.classList.toggle("active", isTerminal);
+    tabScanView.classList.toggle("active", !isTerminal);
+    terminalView.hidden = !isTerminal;
+    scanViewEl.hidden = isTerminal;
+    if (isTerminal) {
+      this.scanView.hide();
+      this.cmdInput.focus();
+    } else {
+      this.scanView.show();
+    }
+  }
+
+  private submitCommand = async (raw: string): Promise<void> => {
+    if (raw !== this.history[this.history.length - 1]) {
+      this.history.push(raw);
+    }
+    this.historyIndex = this.history.length;
+    this.ui.writePromptLine(raw);
+    const parts = raw.split(/\s+/);
+    const name = parts[0];
+    const args = parts.slice(1);
+    await this.executeCommand(name, args);
+  };
+
   private setupEventListeners(): void {
     this.form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const raw = this.cmdInput.value.trim();
       if (!raw) return;
-      if (raw !== this.history[this.history.length - 1]) {
-        this.history.push(raw);
-      }
-      this.historyIndex = this.history.length;
-      this.ui.writePromptLine(raw);
       this.cmdInput.value = "";
-      const parts = raw.split(/\s+/);
-      const name = parts[0];
-      const args = parts.slice(1);
-      await this.executeCommand(name, args);
+      await this.submitCommand(raw);
     });
 
     this.cmdInput.addEventListener("keydown", (ev) => {
@@ -351,6 +410,7 @@ class Terminal {
       this.ui.writeLine(`Erreur: ${err?.message ?? String(err)}`);
     } finally {
       this.ui.setCommandClass("");
+      this.scanView.markDirty();
     }
   }
 
@@ -361,6 +421,12 @@ class Terminal {
   }
 
   private async init(): Promise<void> {
+    const owner = this.fs.getOwnerComputer();
+    this.network.discovered.upsertNode({
+      ip: owner.addressIp,
+      name: owner.name,
+      passwordRequired: owner.password !== "",
+    });
     this.ui.writeLine("Hacknet-like terminal prototype (Vanilla TS)");
     this.ui.writeLine("Tape 'help' pour commencer.");
     this.ui.updateMemoryUI(this.memory.getMemory());

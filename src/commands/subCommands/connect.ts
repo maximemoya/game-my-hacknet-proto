@@ -19,7 +19,8 @@ export const connect: Command = async (args, context) => {
     await context.delay(500);
 
     const sourceIp = context.fs.getCurrentComputer().addressIp;
-    const newCurrentComputer = context.fs.getCurrentComputer().computersLinked.find(c => c.addressIp === ip && c.name === name && ((c.password) ? c.password === password : true));
+    const alreadyUnlocked = context.network.discovered.isUnlocked(ip);
+    const newCurrentComputer = context.fs.getCurrentComputer().computersLinked.find(c => c.addressIp === ip && c.name === name && ((c.password) ? (alreadyUnlocked || c.password === password) : true));
 
     if (!newCurrentComputer) {
       context.ui.writeLine(`connexion to ${args} failed, please check ip and name by using scan or maybe you have wrong password `);
@@ -50,6 +51,18 @@ export const connect: Command = async (args, context) => {
     const timestamp = new Date().toISOString();
     const logEntry = `\n[${timestamp}] Connection received from ${sourceIp}`;
     logFile.content += logEntry;
+
+    if (newCurrentComputer.password !== "" && alreadyUnlocked && newCurrentComputer.password !== password) {
+      context.ui.writeLine("access already unlocked, no password needed");
+    }
+
+    context.network.discovered.upsertNode({
+      ip: newCurrentComputer.addressIp,
+      name: newCurrentComputer.name,
+      passwordRequired: newCurrentComputer.password !== "",
+      unlocked: true,
+    });
+    context.network.discovered.addEdge(sourceIp, newCurrentComputer.addressIp);
 
     context.network.isConnected = true;
     context.fs.setCurrentComputer(newCurrentComputer);

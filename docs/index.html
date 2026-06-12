@@ -156,6 +156,172 @@
       overflow: hidden;
     }
 
+    .tabBar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tab {
+      background: transparent;
+      color: var(--dim);
+      border: 1px solid rgba(25, 227, 255, 0.18);
+      border-radius: 4px 4px 0 0;
+      padding: 4px 14px;
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 2px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-color: rgba(25, 227, 255, 0.45);
+      background: rgba(25, 227, 255, 0.08);
+      text-shadow: 0 0 6px var(--glow);
+    }
+
+    .terminalView {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .terminalView[hidden],
+    .scanView[hidden] {
+      display: none;
+    }
+
+    .scanView {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      border-radius: 4px;
+      background: rgba(0, 5, 9, 0.55);
+      box-shadow: inset 0 0 14px rgba(25, 227, 255, 0.05);
+    }
+
+    .scanView svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .scanView svg.panning {
+      cursor: grabbing;
+    }
+
+    .scanNode {
+      cursor: pointer;
+    }
+
+    .scanNode circle {
+      fill: rgba(2, 16, 25, 0.9);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .scanNode.locked circle {
+      stroke: #ff9f5b;
+    }
+
+    .scanNode.unlocked circle {
+      stroke: var(--accent);
+    }
+
+    .scanNode.unlocked text.nodeLock {
+      fill: #4dff9d;
+    }
+
+    .scanNode.current circle {
+      stroke: #4dff9d;
+      filter: drop-shadow(0 0 6px rgba(77, 255, 157, 0.7));
+    }
+
+    .scanNode:hover circle {
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 8px var(--glow));
+    }
+
+    .scanNode text {
+      fill: var(--text);
+      font-size: 9px;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .scanNode text.nodeIp {
+      fill: var(--dim);
+      font-size: 8px;
+    }
+
+    .scanNode text.nodeLock {
+      fill: #ff9f5b;
+      font-size: 11px;
+    }
+
+    .scanEdge {
+      stroke: rgba(25, 227, 255, 0.25);
+      stroke-width: 1;
+    }
+
+    .scanTooltip {
+      position: absolute;
+      pointer-events: none;
+      z-index: 2;
+      background: rgba(2, 16, 25, 0.95);
+      border: 1px solid rgba(25, 227, 255, 0.4);
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 11px;
+      color: var(--text);
+      white-space: pre;
+      box-shadow: 0 0 10px rgba(25, 227, 255, 0.2);
+    }
+
+    .scanBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 3;
+      background: rgba(2, 16, 25, 0.9);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 6px 14px;
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(25, 227, 255, 0.2);
+    }
+
+    .scanBtn:hover:not(:disabled) {
+      background: rgba(25, 227, 255, 0.15);
+      box-shadow: 0 0 14px rgba(25, 227, 255, 0.45);
+    }
+
+    .scanBtn:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+
+    .scanHint {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 12px;
+      text-align: center;
+      color: var(--dim);
+      font-size: 11px;
+      letter-spacing: 1px;
+      pointer-events: none;
+    }
+
     .sidebar {
       width: clamp(280px, 26vw, 420px);
       display: flex;
@@ -418,7 +584,7 @@
       .cwdAuthGuest { display: none; }
     }
   </style>
-  <script type="module" crossorigin src="/game-my-hacknet-proto/assets/index-CsZZsZzX.js"></script>
+  <script type="module" crossorigin src="/game-my-hacknet-proto/assets/index-tTkzCoFa.js"></script>
 </head>
 
 <body>
@@ -434,15 +600,24 @@
 
     <div class="main">
       <div class="panel">
-        <div class="output" id="output" tabindex="0"></div>
+        <div class="tabBar">
+          <button type="button" class="tab active" id="tabTerminal">TERMINAL</button>
+          <button type="button" class="tab" id="tabScanView">SCAN-VIEW</button>
+        </div>
 
-        <form id="form" class="inputRow" autocomplete="off">
-          <div class="cwdAuthAdmin" id="cwd">/home$</div>
-          <input id="cmd" class="cmd" placeholder="Tape une commande (help)..." />
-          <button type="submit">Entrer</button>
-        </form>
+        <div class="terminalView" id="terminalView">
+          <div class="output" id="output" tabindex="0"></div>
 
-        <div class="small" style="margin-top:8px">Prototype: commandes simples — persistance IndexedDB activée.</div>
+          <form id="form" class="inputRow" autocomplete="off">
+            <div class="cwdAuthAdmin" id="cwd">/home$</div>
+            <input id="cmd" class="cmd" placeholder="Tape une commande (help)..." />
+            <button type="submit">Entrer</button>
+          </form>
+
+          <div class="small" style="margin-top:8px">Prototype: commandes simples — persistance IndexedDB activée.</div>
+        </div>
+
+        <div class="scanView" id="scanView" hidden></div>
       </div>
 
       <aside class="sidebar">

@@ -6,6 +6,7 @@ import type { NpcSession } from "./world/sim/npcTypes";
 // General Types
 export type MemoryState = { total: number; used: number };
 export type ScanEntry = { ip: string; name: string; passwordRequired: boolean };
+export type DiscoveredNode = { ip: string; name: string; passwordRequired: boolean; unlocked?: boolean };
 export type FileNode = { type: "file"; content: string } | { type: "dir"; children: Record<string, FileNode> };
 
 // Manager Interfaces
@@ -44,10 +45,20 @@ export interface I_UIManager {
   updateConnectionBadge(isConnected: boolean): void;
 }
 
+export interface I_DiscoveredNetwork {
+  onChange(cb: () => void): void;
+  upsertNode(node: DiscoveredNode): void;
+  isUnlocked(ip: string): boolean;
+  addEdge(ipA: string, ipB: string): void;
+  getNodes(): DiscoveredNode[];
+  getEdges(): [string, string][];
+}
+
 export interface I_NetworkManager {
   isConnected: boolean;
   scanResults: ScanEntry[];
   scanSourceIp: string;
+  discovered: I_DiscoveredNetwork;
   isCurrentlyConnected(): boolean;
 }
 
