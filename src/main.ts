@@ -3,6 +3,9 @@ import { Computer } from "./computer/Computer";
 import MyFile from "./computer/elements/File";
 import { Folder } from "./computer/elements/Folder";
 import { commands } from "./commands/commands";
+import { startMatrixRain } from "./matrixRain";
+import { startHud } from "./hud";
+import { setupAudio, playKeyClick, playCommandSfx, playError } from "./audio";
 import type { I_DatabaseManager, I_FileSystemManager, I_MemoryManager, I_NetworkManager, I_UIManager, MemoryState, CommandContext } from "./types";
 
 const MEM_MAX_SIZE = 512;
@@ -195,6 +198,9 @@ class Terminal {
     this.cmdInput = document.getElementById("cmd") as HTMLInputElement;
 
     this.setupEventListeners();
+    startMatrixRain(document.getElementById("rain") as HTMLCanvasElement);
+    startHud();
+    setupAudio();
     this.init();
   }
 
@@ -216,6 +222,7 @@ class Terminal {
     });
 
     this.cmdInput.addEventListener("keydown", (ev) => {
+      playKeyClick();
       if (ev.key === "ArrowUp") {
         ev.preventDefault();
         if (this.historyIndex > 0) {
@@ -280,9 +287,11 @@ class Terminal {
   private async executeCommand(name: string, args: string[]): Promise<void> {
     const cmd = commands[name];
     if (!cmd) {
+      playError();
       this.ui.writeLine(`${name}: commande inconnue. Tape 'help'.`);
       return;
     }
+    playCommandSfx(name);
     try {
       const context: CommandContext = {
         fs: this.fs,
@@ -296,6 +305,7 @@ class Terminal {
       await cmd(args, context);
     } catch (err: any) {
       console.error(err);
+      playError();
       this.ui.writeLine(`Erreur: ${err?.message ?? String(err)}`);
     }
   }
