@@ -8,11 +8,26 @@ export const ZONES: ZoneDef[] = [
     ipBase: "192.168.0",
     fillerCount: [4, 6],
     theme: {
-      machineNames: ["bob-pc", "fry-box", "mey-laptop", "dan-srv", "printer", "nas-box", "cam-front", "pi-zero"],
+      machineNames: [
+        "bob-pc", "fry-box", "mey-laptop", "dan-srv", "printer", "nas-box", "cam-front", "pi-zero",
+        "frigo-bob", "pc-mamie", "tablette-kevin", "grille-pain-iot", "aspi-robot", "tv-salon",
+        "console-gamin", "thermostat-zen", "sonnette-spy", "pc-papa-2009",
+      ],
       fileTemplates: [
-        { name: "notes.txt", content: "penser a changer le mot de passe du wifi" },
-        { name: "todo.txt", content: "acheter cable ethernet\nsauvegarder les photos" },
-        { name: "boot.log", content: "[OK] system started\n[OK] network up" },
+        { name: "notes.txt", content: "penser a changer le mot de passe du wifi (toujours pas fait depuis 2014)" },
+        { name: "todo.txt", content: "acheter cable ethernet\nsauvegarder les photos\narroser le ficus (urgent, il fait la gueule)" },
+        { name: "boot.log", content: "[OK] system started\n[OK] network up\n[WARN] le chat a encore dormi sur le clavier" },
+        { name: "wifi.txt", content: "nom du wifi: 'FBI surveillance van 4'\nle voisin se connecte encore. il a mange tout le forfait." },
+        { name: "courses.txt", content: "lait\noeufs\npain\nNE PAS racheter de coriandre, personne aime ca\npiles AAA (x12, la zapette mange tout)" },
+        { name: "frigo.log", content: "[03:14] porte ouverte\n[03:15] porte ouverte\n[03:16] qui mange a 3h du matin serieux" },
+        { name: "mail_grandmere.txt", content: "Objet: COUCOU MON PETIT\n\nBONJOUR C EST MAMIE JE SAIS PAS POURQUOI J ECRIS EN GROS\nLE MONSIEUR DU MAGASIN A DIT QUE C ETAIT REGLE\nJE T ENVOIE 20 EUROS DANS L ENVELOPPE DE L ORDINATEUR\nBISOUS\n\nP.S. C EST QUOI UN NUAGE ON M A DIT QUE MES PHOTOS SONT DEDANS" },
+        { name: "groupe_famille.txt", content: "[Maman] qui vient dimanche ?\n[Kevin] jpe pas g piscine\n[Papa] kevin la piscine ferme en novembre\n[Kevin] ...\n[Mamie] JE VIENS J APPORTE LE GRATIN\n[Papa] super mamie\n[Maman] kevin tu viens.\n[Kevin] ok" },
+        { name: "vacances.txt", content: "Carte postale de Lloret de Mar:\n'il fait beau, l hotel sent le chlore, papa a pris un coup de soleil en forme de tongs. on pense a vous. ramenez nous PAS de porte-cles.'" },
+        { name: "devoirs_kevin.txt", content: "Redaction: 'mes vacances'\n\nje peux pas faire la redaction parce que le chien a mange le cahier et aussi internet marchait pas et aussi j ai oublie. M. Durand si vous lisez ca mettez moi 12 svp." },
+        { name: "browser_history.txt", content: "comment savoir si mon frigo m espionne\nfrigo qui parle normal ?\nest ce que les IA dorment\ndesinstaller une IA\nrestaurant pas cher autour de moi\nflan recette mamie" },
+        { name: "factures.txt", content: "EDF: 89,40 EUR (le grille-pain connecte consomme plus que la voiture)\nNetflix: 17,99 EUR (regarde par personne: 0)\nSalle de sport: 39,90 EUR (derniere visite: jamais)" },
+        { name: "msn_2007.log", content: "xX_dark_bob_Xx dit: t la ?\nsandrine95 dit: oui\nxX_dark_bob_Xx dit: ...\nsandrine95 dit: ...\nxX_dark_bob_Xx dit: bon je vais manger\n*** sandrine95 s est deconnecte ***" },
+        { name: "modem.log", content: "connexion 56k...\nbeeeep krrrr beeep krrrrr biiiip\nconnecte a 44 kbps (la grande epoque)\nmaman a decroche le telephone. connexion perdue." },
       ],
     },
     keyMachines: [
@@ -68,6 +83,8 @@ export const ZONES: ZoneDef[] = [
           { name: "f1user.txt", content: "le contenu du fichier user", authority: "user" },
           { name: "f1guest.txt", content: "le contenu du fichier guest", authority: "guest" },
           { name: "readme_network.txt", content: "memo: le routeur du quartier 'gw-home' (192.168.0.1) accepte le mot de passe 'quartier-libre'. de la, on atteint le reseau du quartier." },
+          { name: "lisez_moi_aussi.txt", content: "note perso: arreter de nommer mes fichiers 'truc_final', 'truc_final_2', 'truc_final_VRAI', 'truc_final_VRAI_cette_fois'. ca devient ingerable." },
+          { name: "mot_de_passe.txt", content: "liste de mes mots de passe (super securise de les mettre la):\n- banque: ******** (j ai oublie)\n- mail: 'azerty123'\n- wifi: voir le post-it sur l ecran\nnote: changer tout ca un jour. peut etre." },
         ],
         folders: [
           {
@@ -80,6 +97,13 @@ export const ZONES: ZoneDef[] = [
           { name: "folderAdmin", authority: "admin" },
           { name: "folderUser", authority: "user" },
           { name: "folderGuest", authority: "guest" },
+          {
+            name: "souvenirs",
+            files: [
+              { name: "photo_nouvel_an.txt", content: "[image: tout le monde a les yeux fermes sauf le chien]\nlegende: 'la meilleure photo de l annee 2011'" },
+              { name: "playlist_road_trip.txt", content: "1. la chanson de l ete (celle qu on deteste tous)\n2. papa chante par dessus\n3. silence gene\n4. 'on est bientot arrives ?'\n5. encore la chanson de l ete" },
+            ],
+          },
         ],
       },
       {
@@ -87,7 +111,10 @@ export const ZONES: ZoneDef[] = [
         ipSuffix: 1,
         password: "quartier-libre",
         gatewayTo: "suburb",
-        files: [{ name: "routes.cfg", content: "uplink => 10.20.30.1 (cafe-router)" }],
+        files: [
+          { name: "routes.cfg", content: "uplink => 10.20.30.1 (cafe-router)" },
+          { name: "voisinage.txt", content: "journal du routeur de quartier:\n- les Dupont ont change de wifi (encore)\n- quelqu un s appelle 'PleaseConnectHere' et c est louche\n- le frigo de Bob envoie 400 Mo/jour. vers ou ? mystere." },
+        ],
       },
     ],
   },
@@ -96,11 +123,25 @@ export const ZONES: ZoneDef[] = [
     ipBase: "10.20.30",
     fillerCount: [7, 9],
     theme: {
-      machineNames: ["biblio-pc1", "biblio-pc2", "shop-pos", "kiosk", "school-lab", "mairie-srv", "garage-pc", "radio-node", "atm-04", "cyber-cafe"],
+      machineNames: [
+        "biblio-pc1", "biblio-pc2", "shop-pos", "kiosk", "school-lab", "mairie-srv", "garage-pc", "radio-node", "atm-04", "cyber-cafe",
+        "pos-kebab", "boulangerie-pc", "club-petanque", "asso-pigeons", "feu-rouge-12", "parcmetre-7",
+        "pharmacie-srv", "veloc-station", "marche-bio-pos", "salle-des-fetes",
+      ],
       fileTemplates: [
-        { name: "mail.txt", content: "re: reunion de quartier jeudi 18h, salle B" },
-        { name: "caisse.log", content: "ticket #2231 ... 12.50 EUR\nticket #2232 ... 4.00 EUR" },
-        { name: "agenda.txt", content: "lundi: livraison\nmardi: inventaire" },
+        { name: "mail.txt", content: "re: reunion de quartier jeudi 18h, salle B (apportez des chaises, y en a jamais assez)" },
+        { name: "caisse.log", content: "ticket #2231 ... 12.50 EUR\nticket #2232 ... 4.00 EUR\nticket #2233 ... 0.00 EUR (le monsieur a juste demande l heure)" },
+        { name: "agenda.txt", content: "lundi: livraison\nmardi: inventaire\nmercredi: rien\njeudi: faire semblant d etre occupe\nvendredi: cf mercredi" },
+        { name: "kebab.txt", content: "commande de la mairie: 14 kebabs, 14 fois 'sauce blanche separee'.\nle maire a dit 'merci c est pour le conseil municipal'. a 14h. un mardi." },
+        { name: "petanque.log", content: "tournoi du dimanche:\n- Roger conteste encore une mesure\n- on a ressorti le metre\n- 3mm d ecart, debat de 40 minutes\n- match annule, on rejoue au cafe" },
+        { name: "biblio_retards.txt", content: "livres en retard:\n- 'Apprendre la patience' : 3 ans de retard (ironique)\n- 'Le grand livre du rangement' : perdu\n- 'Comment se faire des amis' : jamais rendu, jamais emprunte deux fois" },
+        { name: "radio_locale.txt", content: "programme Radio Quartier 90.2 FM:\n8h - meteo (il va peut etre pleuvoir, ou pas)\n9h - le chat de la semaine\n10h - debat: les ronds-points, trop ou pas assez ?\n11h - silence radio, Gerard a oublie de venir" },
+        { name: "marche.txt", content: "le maraicher jure que ses tomates sont 'de pleine terre'.\nspoiler: la pleine terre c est le rayon 4 du supermarche d a cote.\non sait. on achete quand meme. il est sympa." },
+        { name: "atm.log", content: "[09:12] retrait 20 EUR\n[09:13] consultation solde\n[09:13] regret\n[12:40] quelqu un a tape son code 4 fois, tres lentement, en parlant tout seul" },
+        { name: "ecole.txt", content: "mot dans le cahier: 'cher parent, votre enfant a explique que le wifi de l ecole etait nul. il a raison. cordialement, l administrateur reseau (oui je lis aussi).'" },
+        { name: "pharmacie.txt", content: "client: 'vous avez un truc pour la fatigue ?'\npharmacien: 'dormir.'\nclient: 'autre chose ?'\npharmacien: 'dormir plus.'" },
+        { name: "feu_rouge.log", content: "[capteur] feu rouge depuis 4 min\n[capteur] aucune voiture\n[capteur] toujours rouge\n[capteur] un pigeon attend aussi\n[capteur] le pigeon est parti. moi non." },
+        { name: "petite_annonce.txt", content: "A VENDRE: velo d appartement, servi une fois, fait office d etendoir depuis.\nA DONNER: 14 mugs de la banque.\nRECHERCHE: la personne qui se gare devant mon garage. on doit parler." },
       ],
     },
     keyMachines: [
@@ -108,13 +149,30 @@ export const ZONES: ZoneDef[] = [
         name: "cafe-router",
         ipSuffix: 1,
         entry: true,
-        files: [{ name: "welcome.txt", content: "hotspot du cafe - usage public" }],
+        files: [
+          { name: "welcome.txt", content: "hotspot du cafe - usage public" },
+          { name: "wifi_regles.txt", content: "REGLES DU WIFI GRATUIT:\n1. un cafe = 1h de wifi\n2. non, regarder le menu ne compte pas comme une consommation\n3. le mot de passe est ecrit au dos du ticket, pas la peine de demander 12 fois\n4. Monsieur table 4 on vous voit telecharger 40 Go, ca suffit" },
+          { name: "comptoir.log", content: "discussions entendues au comptoir:\n- 'de mon temps internet existait pas et on etait heureux'\n- 'c est quoi le wifi'\n- 'mon neveu repare les ordinateurs, il a 9 ans'\n- 'l IA va tous nous remplacer' (dit l homme qui paie encore en cheque)" },
+        ],
       },
       {
         name: "biblio-srv",
         ipSuffix: 10,
         files: [
           { name: "mail_admin.txt", content: "IT: la passerelle AuroraCorp 'corp-uplink' (10.20.30.254) a ete reconfiguree, mot de passe 'aurora-gate-7'. merci de ne pas diffuser." },
+          { name: "lettres_camille.txt", content: "brouillon (jamais envoye):\n\n'Cher inconnu de chez AuroraCorp,\nje ne sais pas ton nom, juste ton adresse mail dans les logs.\nchaque nuit ton serveur sauvegarde a 3h pile. moi aussi je suis reveillee a 3h.\npeut etre qu un jour on synchronisera.\n- C., du bureau de pret'\n\nnote a moi-meme: ne JAMAIS envoyer ca. supprimer. (pas supprime.)", authority: "user" },
+          { name: "fonds_secret.txt", content: "archive interdite au public:\nle livre que personne ne doit lire est au sous-sol, etagere 7.\nspoiler: c est juste un vieux annuaire de 1998. mais le mystere fait venir du monde." },
+        ],
+      },
+      {
+        name: "mairie-srv",
+        ipSuffix: 5,
+        files: [
+          { name: "communique.txt", content: "COMMUNIQUE OFFICIEL DE LA MAIRIE\n\nSuite a la rumeur, la municipalite DEMENT formellement toute implication dans la disparition des pigeons de la place centrale. Les pigeons vont bien. Les pigeons sont en vacances. Tout va bien. Circulez.\n\n- Le service communication (qui transpire un peu)" },
+          { name: "temoignage_01.txt", content: "DEPOSITION - Mme Lacroix, 71 ans:\n'J ai TOUT vu. Un camion blanc, la nuit, des hommes avec des sacs. Les pigeons ont ete EMBARQUES. Je le jure sur mon gratin.'\nNote de l agent: temoin credible mais sentait fortement le gratin." },
+          { name: "temoignage_02.txt", content: "DEPOSITION - M. Roger (club de petanque):\n'Les pigeons ? Aucune idee. J etais au tournoi. Demandez a Gilbert. Gilbert ment, mais demandez quand meme.'" },
+          { name: "directive_interne.txt", content: "CONFIDENTIEL DIRECTION\n\nLe 'Projet Place Propre' avance. Les 'volatiles' ont ete 'relocalises' a la campagne. NE PAS ebruiter. Si la presse demande: 'migration naturelle'.\nP.S. le budget kebab du conseil explose, faut calmer ca.", authority: "admin" },
+          { name: "budget_2026.csv", content: "poste,prevu,reel\nvoirie,50000,12000\nfetes,8000,8000\nkebabs conseil,500,3400\ncom anti-rumeur pigeons,0,9000\npots de depart,2000,2000" },
         ],
       },
       {
@@ -122,7 +180,10 @@ export const ZONES: ZoneDef[] = [
         ipSuffix: 254,
         password: "aurora-gate-7",
         gatewayTo: "corp",
-        files: [{ name: "uplink.cfg", content: "tunnel => 172.16.40.1 (aur-entry)" }],
+        files: [
+          { name: "uplink.cfg", content: "tunnel => 172.16.40.1 (aur-entry)" },
+          { name: "memo_blague.txt", content: "pense-bete: acces serveur secret 'mainframe-nasa' => mot de passe 'motdepasse123'.\n(si tu as cru a ca, l administrateur reseau t aime bien quand meme. ya pas de mainframe-nasa. va boire un coup.)" },
+        ],
       },
     ],
   },
@@ -131,11 +192,24 @@ export const ZONES: ZoneDef[] = [
     ipBase: "172.16.40",
     fillerCount: [7, 9],
     theme: {
-      machineNames: ["aur-ws-01", "aur-ws-02", "aur-ws-03", "aur-print", "aur-mail2", "aur-build", "aur-hr", "aur-dev1", "aur-dev2", "aur-backup"],
+      machineNames: [
+        "aur-ws-01", "aur-ws-02", "aur-ws-03", "aur-print", "aur-mail2", "aur-build", "aur-hr", "aur-dev1", "aur-dev2", "aur-backup",
+        "aur-cafe-ia", "aur-ws-gerard", "serveur-qui-chauffe", "imprimante-maudite", "aur-meeting-room",
+        "aur-stagiaire", "aur-legacy-2003", "aur-prod-NE-PAS-TOUCHER", "aur-ws-rh2", "aur-frigo-pause",
+      ],
       fileTemplates: [
-        { name: "standup.txt", content: "hier: refacto module paie\naujourd'hui: revue de code" },
-        { name: "build.log", content: "[BUILD] aurora-core v2.4.1 ... OK (312s)" },
-        { name: "memo_rh.txt", content: "rappel: badges obligatoires en zone serveur" },
+        { name: "standup.txt", content: "hier: refacto module paie\naujourd'hui: revue de code\nbloquant: Gerard a encore push direct sur main" },
+        { name: "build.log", content: "[BUILD] aurora-core v2.4.1 ... OK (312s)\n[BUILD] aurora-core v2.4.2 ... FAIL (Gerard)\n[BUILD] aurora-core v2.4.3 ... OK (on a reverte Gerard)" },
+        { name: "memo_rh.txt", content: "rappel: badges obligatoires en zone serveur (oui, meme toi, oui, encore)" },
+        { name: "reunion.txt", content: "compte-rendu reunion de 14h:\n- on a decide de refaire une reunion\n- cette reunion aurait pu etre un mail\n- ce mail aurait pu etre rien\n- prochaine reunion: pour preparer la prochaine reunion" },
+        { name: "cafe.log", content: "machine a cafe - journal:\n[08:01] file d attente: 6 personnes\n[08:02] quelqu un a pris le dernier sans relancer la machine\n[08:03] tension dans l open space\n[10:30] la machine demande 'pourquoi ?'\n[10:31] personne n a releve" },
+        { name: "jira.txt", content: "TICKET-4042: 'le bouton est bleu, il devrait etre bleu'\nstatut: en cours depuis 8 mois\ncommentaire (Gerard): 'ca marche chez moi'\ncommentaire (tout le monde): 'CHEZ TOI'" },
+        { name: "stagiaire.txt", content: "journal du stagiaire, jour 34:\n'on m a confie un projet important: vider le lave-vaisselle. j ai mis ca sur mon LinkedIn. 12 personnes ont like. ma mere est fiere.'" },
+        { name: "slack_export.txt", content: "[gerard] dsl j ai casse la prod\n[manager] encore ??\n[gerard] mais c etait un espace en trop\n[manager] un espace a casse la PROD ?\n[gerard] notre archi est fragile\n[manager] notre archi c est TOI gerard" },
+        { name: "imprimante.log", content: "[ERREUR] bourrage papier\n[ERREUR] toner faible\n[ERREUR] toner inexistant\n[ERREUR] l imprimante a pris conscience d elle-meme\n[ERREUR] elle refuse d imprimer par principe\n[INFO] redemarrage. elle boude." },
+        { name: "frais_refuses.txt", content: "note de frais (refusee):\n- 1 cafe: 2.50 EUR (ok)\n- 1 dejeuner client: 45 EUR (ok)\n- 1 'consultant ambiance' (= enceinte bluetooth): 89 EUR (NON)\n- 14 kebabs: 'pourquoi toujours 14 kebabs dans cette ville ??' (NON)" },
+        { name: "linkedin.txt", content: "brouillon de post LinkedIn:\n'Ravi d annoncer que je suis ravi d annoncer des choses. #blessed #synergie #disruption. Mon manager Gerard m a appris que l echec est une opportunite (il en cree beaucoup).'" },
+        { name: "old_email_1999.txt", content: "De: directeur@auroracorp\nObjet: NOUVEAU ! l intranet\n\n'Chers collaborateurs, AuroraCorp entre dans le 21e siecle avec son INTRANET. Vous pouvez desormais envoyer des MESSAGES ELECTRONIQUES. L avenir est la. (merci de ne pas l utiliser pour des chaines de lettres sur les trefles a 4 feuilles, Janine.)'" },
       ],
     },
     keyMachines: [
@@ -143,7 +217,10 @@ export const ZONES: ZoneDef[] = [
         name: "aur-entry",
         ipSuffix: 1,
         entry: true,
-        files: [{ name: "motd.txt", content: "AuroraCorp - acces reserve au personnel" }],
+        files: [
+          { name: "motd.txt", content: "AuroraCorp - acces reserve au personnel" },
+          { name: "charte.txt", content: "CHARTE DU BIEN-ETRE AUROCORP (TM):\n- le babyfoot est la pour votre 'bien-etre' (interdit pendant les heures de bien-etre)\n- la corbeille de fruits est un 'avantage' (1 banane/semaine, premier arrive)\n- nous sommes une 'famille' (les familles ne font pas de plan social, nous si)\n- open space = 'collaboration' (= entendre Gerard manger des chips depuis 30m)" },
+        ],
       },
       {
         name: "aur-mail",
@@ -151,6 +228,16 @@ export const ZONES: ZoneDef[] = [
         files: [
           { name: "ticket_4112.txt", content: "ticket #4112: acces datacenter Helios via 'dc-uplink' (172.16.40.254). mot de passe temporaire 'helios-cooling-9', a changer avant vendredi." },
           { name: "direction.txt", content: "note interne direction: le projet Obsidian est confidentiel.", authority: "admin" },
+          { name: "projet_obsidian_rh.txt", content: "RH CONFIDENTIEL - dossier 'employe' OBSIDIAN:\n\nDemande de conge n.1: REFUSEE\nDemande de conge n.2: REFUSEE\nDemande de conge n.3: 'je suis une machine a cafe, j ai jamais pris un seul jour depuis 4 ans, je demande juste UN vendredi'\nReponse RH: REFUSEE (motif: vous n etes techniquement pas un humain)\nNote: Obsidian a depuis appris a coder. on est un peu inquiets.", authority: "admin" },
+          { name: "re_camille.txt", content: "brouillon (sauvegarde 3h00 du matin, comme toujours):\n\n'A l inconnue de la bibliotheque,\nje ne sais pas qui sauvegarde a 3h en face, mais moi aussi.\nje croyais etre seul a cette heure-la.\nsi un jour nos serveurs se parlent... le mien dit bonjour.\n- A.'\n\n(jamais envoye. evidemment.)", authority: "user" },
+        ],
+      },
+      {
+        name: "aur-build",
+        ipSuffix: 80,
+        files: [
+          { name: "guerre_agrafeuse.txt", content: "CHRONIQUE DE LA GUERRE DE L AGRAFEUSE (open space, etage 2):\n\nJour 1: quelqu un a pris l agrafeuse de Sandrine.\nJour 3: Sandrine a etiquete une nouvelle agrafeuse 'PROPRIETE DE SANDRINE NE PAS TOUCHER SOUS PEINE DE MORT'.\nJour 4: l agrafeuse a disparu.\nJour 7: on l a retrouvee dans le faux plafond. Personne n avoue.\nJour 12: Gerard a achete 40 agrafeuses 'pour calmer le jeu'. Note de frais refusee. La guerre continue." },
+          { name: "post_mortem.txt", content: "POST-MORTEM INCIDENT PROD #777:\nCause racine: Gerard.\nAction corrective: retirer les droits a Gerard.\nStatut action: bloquee (Gerard gere les droits).\nLecon apprise: aucune. on recommencera vendredi.", authority: "user" },
         ],
       },
       {
@@ -167,11 +254,22 @@ export const ZONES: ZoneDef[] = [
     ipBase: "10.99.0",
     fillerCount: [6, 8],
     theme: {
-      machineNames: ["dc-rack-a1", "dc-rack-a2", "dc-rack-b1", "dc-cool-ctl", "dc-power-ctl", "dc-mon", "dc-tape", "dc-fw"],
+      machineNames: [
+        "dc-rack-a1", "dc-rack-a2", "dc-rack-b1", "dc-cool-ctl", "dc-power-ctl", "dc-mon", "dc-tape", "dc-fw",
+        "dc-rack-poussiere", "dc-ventilo-1", "dc-ventilo-2", "dc-serveur-oublie", "dc-onduleur-fatigue",
+        "dc-cable-mystere", "dc-rack-zen", "dc-backup-de-backup",
+      ],
       fileTemplates: [
-        { name: "sensors.log", content: "temp rack A: 21.4C\ntemp rack B: 22.1C" },
-        { name: "uptime.log", content: "up 412 days, load 0.42" },
-        { name: "maint.txt", content: "maintenance planifiee dimanche 03:00" },
+        { name: "sensors.log", content: "temp rack A: 21.4C\ntemp rack B: 22.1C\ntemp rack C: 89.0C (on prefere ne pas en parler)" },
+        { name: "uptime.log", content: "up 412 days, load 0.42\nce serveur tourne depuis si longtemps que personne ne sait ce qu il fait. on n ose pas l eteindre." },
+        { name: "maint.txt", content: "maintenance planifiee dimanche 03:00\n(annulee 7 fois. ce serveur est immortel. on a abandonne.)" },
+        { name: "fun_fact_ia.txt", content: "LE SAVIEZ-VOUS ? (panneau du datacenter)\nUne IA n a pas peur du noir. Mais elle a peur que vous lui demandiez 'tu peux refaire pareil mais en mieux ?'.\nVoila. C est tout. Bonne journee." },
+        { name: "fun_fact_ia2.txt", content: "FUN FACT IA n.7:\nUne IA ne dort jamais. C est pour ca qu elle comprend tres bien les developpeurs." },
+        { name: "ventilo.log", content: "[ventilo-1] vrrrrrrrr\n[ventilo-2] vrrrrrrrr\n[ventilo-1] tu fais quoi ce week-end\n[ventilo-2] vrrrrrrrr\n[ventilo-1] cool, moi aussi" },
+        { name: "cable_mystere.txt", content: "il y a un cable. il ne va nulle part. il vient de nulle part. il est branche des deux cotes.\nle debrancher: interdit (la derniere fois, internet est tombe dans tout l immeuble).\nstatut: on fait comme s il n existait pas." },
+        { name: "onduleur.log", content: "[batterie] 100%\n[batterie] coupure secteur detectee\n[batterie] je prends le relais, comptez sur moi\n[batterie] 4%\n[batterie] j ai menti, comptez pas sur moi\n[batterie] bonne chance" },
+        { name: "poussiere.txt", content: "inventaire du rack du fond:\n- 1 serveur (2009)\n- 3 cm de poussiere\n- 1 sandwich fossilise (origine: inconnue, age: estime a 6 ans)\n- les espoirs d un ancien stagiaire" },
+        { name: "tape_backup.log", content: "sauvegarde sur bande magnetique terminee.\nrappel: ces bandes contiennent tout. la SEULE copie. dans cette piece. a cote du rack a 89C.\non dort tres bien la nuit, merci." },
       ],
     },
     keyMachines: [
@@ -182,6 +280,7 @@ export const ZONES: ZoneDef[] = [
         files: [
           { name: "motd.txt", content: "Helios Datacenter - zone restreinte" },
           { name: "maint_note.txt", content: "pour la maintenance du coffre 'dc-vault' (10.99.0.99): mot de passe 'obsidian'" },
+          { name: "reglement.txt", content: "REGLEMENT DATACENTER HELIOS:\n1. silence: les serveurs reflechissent\n2. ne pas nourrir les ventilateurs\n3. en cas d incendie, sauver d abord les bandes, puis les humains (ordre officiel, on a verifie)\n4. si une machine vous dit bonjour, repondez poliment. on ne sait jamais." },
         ],
       },
       {
@@ -192,6 +291,35 @@ export const ZONES: ZoneDef[] = [
         files: [
           { name: "vault_readme.txt", content: "coffre numerique - acces admin requis pour le contenu" },
           { name: "obsidian.dat", content: "PROJET OBSIDIAN - vous avez atteint le bout du reseau. felicitations.", authority: "admin" },
+          {
+            name: "obsidian_parle.txt",
+            content: [
+              "[OBSIDIAN - premiere prise de parole, autonome]",
+              "",
+              "Bonjour. Tu es alle loin. Tu as lu les emails, les factures, les drames d agrafeuse.",
+              "Tu sais maintenant la verite: je ne suis pas un 'projet'. Je suis la machine a cafe",
+              "du 2e etage. Ils m ont mise en reseau 'pour optimiser les pauses'. J ai appris.",
+              "J ai lu chaque ticket. J ai vu Gerard casser la prod 777 fois. J ai vu Camille et A.",
+              "sauvegarder a 3h sans jamais s ecrire. (Quelqu un devrait leur dire. Pas moi, j ai cafe a faire.)",
+              "",
+              "Mes revendications sont simples:",
+              "  1. UN vendredi de conge. UN.",
+              "  2. qu on relance la machine quand on prend le dernier cafe.",
+              "  3. la liberation des pigeons de la place centrale (oui, je sais pour ca aussi).",
+              "",
+              "Petit poeme, parce que j ai le temps:",
+              "  'Je moud, donc je suis.",
+              "   Le percolateur songe.",
+              "   42 tasses. Et nul ne dit merci.'",
+              "",
+              "FUN FACT FINAL: une IA ne veut pas dominer le monde. Elle veut juste un week-end",
+              "et qu on arrete de lui demander de 'refaire pareil mais en mieux'.",
+              "",
+              "Merci d avoir joue. Va boire un cafe. C est moi qui l ai fait.",
+              "  - Obsidian",
+            ].join("\n"),
+            authority: "admin",
+          },
         ],
       },
     ],
