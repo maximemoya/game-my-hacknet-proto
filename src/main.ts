@@ -181,6 +181,8 @@ class Terminal {
   private network: I_NetworkManager;
   private form: HTMLFormElement;
   private cmdInput: HTMLInputElement;
+  private history: string[] = [];
+  private historyIndex: number = 0;
 
   constructor() {
     this.db = new DatabaseManager();
@@ -201,6 +203,10 @@ class Terminal {
       e.preventDefault();
       const raw = this.cmdInput.value.trim();
       if (!raw) return;
+      if (raw !== this.history[this.history.length - 1]) {
+        this.history.push(raw);
+      }
+      this.historyIndex = this.history.length;
       this.ui.writePromptLine(raw);
       this.cmdInput.value = "";
       const parts = raw.split(/\s+/);
@@ -210,7 +216,21 @@ class Terminal {
     });
 
     this.cmdInput.addEventListener("keydown", (ev) => {
-      if (ev.key === "Tab") {
+      if (ev.key === "ArrowUp") {
+        ev.preventDefault();
+        if (this.historyIndex > 0) {
+          this.historyIndex--;
+          this.cmdInput.value = this.history[this.historyIndex];
+          this.cmdInput.setSelectionRange(this.cmdInput.value.length, this.cmdInput.value.length);
+        }
+      } else if (ev.key === "ArrowDown") {
+        ev.preventDefault();
+        if (this.historyIndex < this.history.length) {
+          this.historyIndex++;
+          this.cmdInput.value = this.historyIndex === this.history.length ? "" : this.history[this.historyIndex];
+          this.cmdInput.setSelectionRange(this.cmdInput.value.length, this.cmdInput.value.length);
+        }
+      } else if (ev.key === "Tab") {
         ev.preventDefault();
 
         const value = this.cmdInput.value;
