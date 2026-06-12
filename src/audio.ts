@@ -148,6 +148,10 @@ export function playCommandSfx(name: string): void {
   else playCommandRun();
 }
 
+export function playUiClick(): void {
+  sweep("triangle", 1000, 1300, 0.06, 0.18);
+}
+
 export function playError(): void {
   if (!ctx || !sfxGain || ctx.state !== "running") return;
   const osc = ctx.createOscillator();

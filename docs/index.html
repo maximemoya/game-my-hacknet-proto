@@ -189,8 +189,126 @@
     }
 
     .terminalView[hidden],
-    .scanView[hidden] {
+    .scanView[hidden],
+    .fileManagerView[hidden] {
       display: none;
+    }
+
+    .fileManagerView {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      background: rgba(0, 5, 9, 0.55);
+      box-shadow: inset 0 0 14px rgba(25, 227, 255, 0.05);
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    .fmPath {
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 1px;
+      padding: 2px 4px 6px;
+      border-bottom: 1px solid rgba(25, 227, 255, 0.18);
+      margin-bottom: 6px;
+      text-shadow: 0 0 6px var(--glow);
+    }
+
+    .fmAuthAdmin { color: var(--authAdmin); }
+    .fmAuthUser { color: var(--authUser); }
+    .fmAuthGuest { color: var(--authGuest); }
+
+    .fmSearch {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .fmSearchInput {
+      flex: 1;
+      min-width: 0;
+      background: rgba(0, 5, 9, 0.4);
+      border: 1px solid rgba(25, 227, 255, 0.18);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 4px 8px;
+      outline: none;
+    }
+
+    .fmSearchInput:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 6px var(--glow);
+    }
+
+    .fmSearchBtn {
+      padding: 2px 10px;
+      font-size: 11px;
+    }
+
+    .fmList {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .fmEntry {
+      padding: 4px 8px;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 3px;
+      text-shadow: 0 0 5px rgba(25, 227, 255, 0.35);
+    }
+
+    .fmEntry:hover {
+      background: rgba(25, 227, 255, 0.08);
+    }
+
+    .fmEntry.fmFolder { color: #6fb8ff; }
+    .fmEntry.fmFile { color: #e8f6ff; }
+
+    .fmEmpty {
+      color: var(--dim);
+      font-size: 12px;
+      padding: 8px;
+    }
+
+    .fmContent {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .fmContentHeader {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .fmCloseBtn {
+      padding: 2px 8px;
+      font-size: 11px;
+    }
+
+    .fmContentBody {
+      flex: 1;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-size: 13px;
+      color: var(--text);
+      background: rgba(0, 5, 9, 0.4);
+      border-radius: 3px;
+      padding: 8px;
+      min-height: 0;
     }
 
     .scanView {
@@ -229,6 +347,15 @@
       stroke: #ff9f5b;
     }
 
+    .scanNode.unvisited circle {
+      stroke: #6b7280;
+    }
+
+    .scanNode.unvisited text.nodeName,
+    .scanNode.unvisited text.nodeIp {
+      fill: #6b7280;
+    }
+
     .scanNode.unlocked circle {
       stroke: var(--accent);
     }
@@ -240,6 +367,16 @@
     .scanNode.current circle {
       stroke: #4dff9d;
       filter: drop-shadow(0 0 6px rgba(77, 255, 157, 0.7));
+    }
+
+    .scanNode.owner circle {
+      stroke: #ffd24d;
+      filter: drop-shadow(0 0 6px rgba(255, 210, 77, 0.7));
+    }
+
+    .scanNode text.nodeStart {
+      fill: #ffd24d;
+      font-size: 13px;
     }
 
     .scanNode:hover circle {
@@ -584,7 +721,7 @@
       .cwdAuthGuest { display: none; }
     }
   </style>
-  <script type="module" crossorigin src="/game-my-hacknet-proto/assets/index-tTkzCoFa.js"></script>
+  <script type="module" crossorigin src="/game-my-hacknet-proto/assets/index-C3hAUbjg.js"></script>
 </head>
 
 <body>
@@ -603,6 +740,7 @@
         <div class="tabBar">
           <button type="button" class="tab active" id="tabTerminal">TERMINAL</button>
           <button type="button" class="tab" id="tabScanView">SCAN-VIEW</button>
+          <button type="button" class="tab" id="tabFileManager">FILE-MANAGER</button>
         </div>
 
         <div class="terminalView" id="terminalView">
@@ -618,6 +756,8 @@
         </div>
 
         <div class="scanView" id="scanView" hidden></div>
+
+        <div class="fileManagerView" id="fileManagerView" hidden></div>
       </div>
 
       <aside class="sidebar">

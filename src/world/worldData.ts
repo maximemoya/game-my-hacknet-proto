@@ -20,7 +20,7 @@ export const ZONES: ZoneDef[] = [
         name: "wax",
         ipSuffix: 42,
         owner: true,
-        password: "wax",
+        password: "",
         passwordAuthUser: "user",
         passwordAuthAdmin: "admin",
         files: [

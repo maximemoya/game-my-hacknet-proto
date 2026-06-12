@@ -11,9 +11,10 @@ import { getHelpFor } from "./commands/commandHelp";
 import { programRegistry } from "./programs/programRegistry";
 import { startMatrixRain } from "./matrixRain";
 import { startHud, pushNetFeedLine } from "./hud";
-import { setupAudio, playKeyClick, playCommandSfx, playError } from "./audio";
+import { setupAudio, playKeyClick, playCommandSfx, playError, playUiClick } from "./audio";
 import { DiscoveredNetwork } from "./discoveredNetwork";
 import { ScanView } from "./scanView";
+import { FileManagerView } from "./fileManagerView";
 import type { I_DatabaseManager, I_FileSystemManager, I_MemoryManager, I_NetworkManager, I_UIManager, MemoryState, CommandContext, ScanEntry } from "./types";
 
 const MEM_MAX_SIZE = 512;
@@ -158,6 +159,8 @@ class UIManager implements I_UIManager {
 
   clearOutput = () => { this.output.innerHTML = ""; };
 
+  scrollToBottom = () => { this.output.scrollTop = this.output.scrollHeight; };
+
   updateMemoryUI = (memory: MemoryState) => {
     this.memUsedEl.textContent = String(memory.used);
     this.memTotEl.textContent = String(memory.total);
@@ -198,6 +201,7 @@ class Terminal {
   private form: HTMLFormElement;
   private cmdInput: HTMLInputElement;
   private scanView: ScanView;
+  private fileManagerView: FileManagerView;
   private history: string[] = [];
   private historyIndex: number = 0;
 
@@ -233,8 +237,10 @@ class Terminal {
           this.cmdInput.focus();
           this.cmdInput.setSelectionRange(this.cmdInput.value.length, this.cmdInput.value.length);
         } else {
-          void this.submitCommand(`connect ${node.ip} ${node.name}`).then(() => {
+          void this.submitCommand(`connect ${node.ip} ${node.name}`).then(async () => {
             if (this.fs.getCurrentComputer().addressIp === node.ip) {
+              // keep scanResults fresh so brute-force/connect-by-index work right away
+              await this.submitCommand("scan");
               this.scanView.show();
             } else {
               this.setActiveTab("terminal");
@@ -243,6 +249,20 @@ class Terminal {
         }
       },
       onScan: () => this.submitCommand("scan"),
+    });
+    this.fileManagerView = new FileManagerView({
+      container: document.getElementById("fileManagerView") as HTMLElement,
+      fs: this.fs,
+      onCommand: this.submitCommand,
+      runGrep: async (pattern: string): Promise<string[]> => {
+        const lines: string[] = [];
+        const tee: I_UIManager = {
+          ...this.ui,
+          writeLine: (text, cls) => { lines.push(text); this.ui.writeLine(text, cls); },
+        };
+        await this.submitCommand(`grep ${pattern.trim()}`, tee);
+        return lines;
+      },
     });
     this.setupTabs();
 
@@ -256,29 +276,28 @@ class Terminal {
   private setupTabs(): void {
     const tabTerminal = document.getElementById("tabTerminal") as HTMLButtonElement;
     const tabScanView = document.getElementById("tabScanView") as HTMLButtonElement;
-    tabTerminal.addEventListener("click", () => this.setActiveTab("terminal"));
-    tabScanView.addEventListener("click", () => this.setActiveTab("scan"));
+    const tabFileManager = document.getElementById("tabFileManager") as HTMLButtonElement;
+    tabTerminal.addEventListener("click", () => { playUiClick(); this.setActiveTab("terminal"); });
+    tabScanView.addEventListener("click", () => { playUiClick(); this.setActiveTab("scan"); });
+    tabFileManager.addEventListener("click", () => { playUiClick(); this.setActiveTab("files"); });
   }
 
-  private setActiveTab(which: "terminal" | "scan"): void {
-    const tabTerminal = document.getElementById("tabTerminal") as HTMLButtonElement;
-    const tabScanView = document.getElementById("tabScanView") as HTMLButtonElement;
-    const terminalView = document.getElementById("terminalView") as HTMLDivElement;
-    const scanViewEl = document.getElementById("scanView") as HTMLDivElement;
-    const isTerminal = which === "terminal";
-    tabTerminal.classList.toggle("active", isTerminal);
-    tabScanView.classList.toggle("active", !isTerminal);
-    terminalView.hidden = !isTerminal;
-    scanViewEl.hidden = isTerminal;
-    if (isTerminal) {
-      this.scanView.hide();
-      this.cmdInput.focus();
-    } else {
-      this.scanView.show();
+  private setActiveTab(which: "terminal" | "scan" | "files"): void {
+    const tabs: { key: "terminal" | "scan" | "files"; tabId: string; viewId: string }[] = [
+      { key: "terminal", tabId: "tabTerminal", viewId: "terminalView" },
+      { key: "scan", tabId: "tabScanView", viewId: "scanView" },
+      { key: "files", tabId: "tabFileManager", viewId: "fileManagerView" },
+    ];
+    for (const t of tabs) {
+      (document.getElementById(t.tabId) as HTMLButtonElement).classList.toggle("active", t.key === which);
+      (document.getElementById(t.viewId) as HTMLElement).hidden = t.key !== which;
     }
+    if (which === "scan") this.scanView.show(); else this.scanView.hide();
+    if (which === "files") this.fileManagerView.show(); else this.fileManagerView.hide();
+    if (which === "terminal") { this.cmdInput.focus(); requestAnimationFrame(() => this.ui.scrollToBottom()); }
   }
 
-  private submitCommand = async (raw: string): Promise<void> => {
+  private submitCommand = async (raw: string, captureUi?: I_UIManager): Promise<void> => {
     if (raw !== this.history[this.history.length - 1]) {
       this.history.push(raw);
     }
@@ -287,7 +306,7 @@ class Terminal {
     const parts = raw.split(/\s+/);
     const name = parts[0];
     const args = parts.slice(1);
-    await this.executeCommand(name, args);
+    await this.executeCommand(name, args, captureUi ?? this.ui);
   };
 
   private setupEventListeners(): void {
@@ -374,7 +393,20 @@ class Terminal {
     });
   }
 
-  private async executeCommand(name: string, args: string[]): Promise<void> {
+  private buildContext(ui: I_UIManager): CommandContext {
+    return {
+      fs: this.fs,
+      ui,
+      memory: this.memory,
+      network: this.network,
+      db: this.db,
+      sim: this.sim,
+      getPromptToUpdate: this.getPromptToUpdate,
+      delay: this.delay,
+    };
+  }
+
+  private async executeCommand(name: string, args: string[], ui: I_UIManager = this.ui): Promise<void> {
     const cmd = commands[name];
     if (!cmd) {
       playError();
@@ -392,17 +424,7 @@ class Terminal {
       return;
     }
     try {
-      const context: CommandContext = {
-        fs: this.fs,
-        ui: this.ui,
-        memory: this.memory,
-        network: this.network,
-        db: this.db,
-        sim: this.sim,
-        getPromptToUpdate: this.getPromptToUpdate,
-        delay: this.delay,
-      };
-      await cmd(args, context);
+      await cmd(args, this.buildContext(ui));
     } catch (err: any) {
       console.error(err);
       playError();
@@ -411,6 +433,7 @@ class Terminal {
     } finally {
       this.ui.setCommandClass("");
       this.scanView.markDirty();
+      this.fileManagerView.markDirty();
     }
   }
 

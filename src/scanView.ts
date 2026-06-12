@@ -179,13 +179,17 @@ export class ScanView {
     }
 
     const currentIp = getCurrentIp();
+    const ownerIp = getOwnerIp();
     for (const node of nodes) {
       const p = pos.get(node.ip);
       if (!p) continue;
+      const isOwner = node.ip === ownerIp;
       const g = document.createElementNS(SVG_NS, "g");
       let cls = "scanNode";
       if (node.passwordRequired) cls += node.unlocked ? " unlocked" : " locked";
+      else if (!node.unlocked && node.ip !== ownerIp && node.ip !== currentIp) cls += " unvisited";
       if (node.ip === currentIp) cls += " current";
+      if (isOwner) cls += " owner";
       g.setAttribute("class", cls);
       g.setAttribute("transform", `translate(${p.x}, ${p.y})`);
 
@@ -193,7 +197,13 @@ export class ScanView {
       circle.setAttribute("r", String(NODE_RADIUS));
       g.appendChild(circle);
 
-      if (node.passwordRequired) {
+      if (isOwner) {
+        const start = document.createElementNS(SVG_NS, "text");
+        start.setAttribute("class", "nodeStart");
+        start.setAttribute("dy", "4");
+        start.textContent = "★";
+        g.appendChild(start);
+      } else if (node.passwordRequired) {
         const lock = document.createElementNS(SVG_NS, "text");
         lock.setAttribute("class", "nodeLock");
         lock.setAttribute("dy", "4");

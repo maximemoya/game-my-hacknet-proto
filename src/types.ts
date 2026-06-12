@@ -40,6 +40,7 @@ export interface I_UIManager {
   setCommandClass(name: string): void;
   writePromptLine(text: string): void;
   clearOutput(): void;
+  scrollToBottom(): void;
   updateMemoryUI(memory: MemoryState): void;
   updatePrompt(cwd: string, isConnected: boolean, authority: Authority): void;
   updateConnectionBadge(isConnected: boolean): void;
