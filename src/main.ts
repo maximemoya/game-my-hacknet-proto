@@ -1,10 +1,14 @@
 import { type Authority } from "./computer/authority/Authority";
 import type { Computer } from "./computer/Computer";
 import type { Folder } from "./computer/elements/Folder";
-import { buildWorld } from "./world/worldGen";
+import { buildWorld, type World } from "./world/worldGen";
+import { mulberry32 } from "./world/rng";
+import { WORLD_SEED } from "./world/worldData";
+import { generateNpcs } from "./world/sim/npcGen";
+import { Simulation } from "./world/sim/simulation";
 import { commands } from "./commands/commands";
 import { startMatrixRain } from "./matrixRain";
-import { startHud } from "./hud";
+import { startHud, pushNetFeedLine } from "./hud";
 import { setupAudio, playKeyClick, playCommandSfx, playError } from "./audio";
 import type { I_DatabaseManager, I_FileSystemManager, I_MemoryManager, I_NetworkManager, I_UIManager, MemoryState, CommandContext, ScanEntry } from "./types";
 
@@ -60,8 +64,7 @@ class FileSystemManager implements I_FileSystemManager {
   private currentFolder: Folder;
   private allComputers: Computer[];
 
-  constructor() {
-    const world = buildWorld();
+  constructor(world: World) {
     this.ownerComputer = world.owner;
     this.allComputers = world.all;
     this.currentComputer = this.ownerComputer;
@@ -186,6 +189,7 @@ class Terminal {
   private memory: I_MemoryManager;
   private ui: I_UIManager;
   private network: I_NetworkManager;
+  private sim: Simulation;
   private form: HTMLFormElement;
   private cmdInput: HTMLInputElement;
   private history: string[] = [];
@@ -193,7 +197,16 @@ class Terminal {
 
   constructor() {
     this.db = new DatabaseManager();
-    this.fs = new FileSystemManager();
+    const world = buildWorld();
+    this.fs = new FileSystemManager(world);
+    const simRng = mulberry32(WORLD_SEED + 1);
+    this.sim = new Simulation(world.zones, generateNpcs(world.zones, world.owner, simRng), simRng);
+    this.sim.onEvent((e) => {
+      if (e.zoneId === this.sim.zoneIdOf(this.fs.getCurrentComputer().addressIp)) {
+        pushNetFeedLine(e.text);
+      }
+    });
+    this.sim.start();
     this.memory = new MemoryManager();
     this.ui = new UIManager();
     this.network = new NetworkManager();
@@ -318,6 +331,7 @@ class Terminal {
         memory: this.memory,
         network: this.network,
         db: this.db,
+        sim: this.sim,
         getPromptToUpdate: this.getPromptToUpdate,
         delay: this.delay,
       };

@@ -1,6 +1,7 @@
 import type { Authority } from "./computer/authority/Authority";
 import type { Computer } from "./computer/Computer";
 import type { Folder } from "./computer/elements/Folder";
+import type { NpcSession } from "./world/sim/npcTypes";
 
 // General Types
 export type MemoryState = { total: number; used: number };
@@ -50,6 +51,11 @@ export interface I_NetworkManager {
   isCurrentlyConnected(): boolean;
 }
 
+export interface I_Simulation {
+  getSessions(): NpcSession[];
+  zoneIdOf(ip: string): string | undefined;
+}
+
 // Command Context and Type
 export interface CommandContext {
   fs: I_FileSystemManager;
@@ -57,6 +63,7 @@ export interface CommandContext {
   memory: I_MemoryManager;
   network: I_NetworkManager;
   db: I_DatabaseManager;
+  sim: I_Simulation;
   getPromptToUpdate: () => string;
   delay(ms: number): Promise<void>;
 }

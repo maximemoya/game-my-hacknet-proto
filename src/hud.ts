@@ -167,3 +167,16 @@ function startSparkline(canvas: HTMLCanvasElement): void {
   drawFrame();
   if (!REDUCED_MOTION) setInterval(drawFrame, 250);
 }
+
+const NETFEED_MAX_LINES = 8;
+
+export function pushNetFeedLine(text: string): void {
+  const el = document.getElementById("netfeed");
+  if (!el) return;
+  const line = document.createElement("div");
+  line.textContent = `[${new Date().toTimeString().slice(0, 8)}] ${text}`;
+  el.appendChild(line);
+  while (el.children.length > NETFEED_MAX_LINES) {
+    el.removeChild(el.firstChild!);
+  }
+}

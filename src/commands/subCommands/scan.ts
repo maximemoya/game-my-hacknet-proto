@@ -19,8 +19,10 @@ export const scan: Command = async (_args, context) => {
         name: computer.name,
         passwordRequired: computer.password !== "",
       });
+      const sessions = context.sim.getSessions().filter(s => s.machineIp === computer.addressIp);
+      const userMark = sessions.length > 0 ? `  [user: ${sessions.map(s => s.npcName).join(",")}]` : "";
       context.ui.writeClickableLine(
-        `${`[${index}]`.padEnd(indexWidth + 2)}${computer.addressIp.padEnd(17)}${computer.name.padEnd(nameWidth + 2)}auth: ${(computer.password ? "LOCKED" : "OPEN").padEnd(8)}links: ${computer.computersLinked.length}`,
+        `${`[${index}]`.padEnd(indexWidth + 2)}${computer.addressIp.padEnd(17)}${computer.name.padEnd(nameWidth + 2)}auth: ${(computer.password ? "LOCKED" : "OPEN").padEnd(8)}links: ${computer.computersLinked.length}${userMark}`,
         `connect ${computer.addressIp} ${computer.name}`
       );
       index++;

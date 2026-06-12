@@ -7,6 +7,7 @@ import { cd } from "./subCommands/cd";
 import { cat } from "./subCommands/cat";
 import { echo } from "./subCommands/echo";
 import { whoami } from "./subCommands/whoami";
+import { who } from "./subCommands/who";
 import { clear } from "./subCommands/clear";
 import { mem } from "./subCommands/mem";
 import { scan } from "./subCommands/scan";
@@ -27,6 +28,7 @@ export const commands: Record<string, Command> = {
   cat,
   echo,
   whoami,
+  who,
   clear,
   mem,
   scan,
